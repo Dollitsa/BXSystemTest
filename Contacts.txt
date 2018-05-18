@@ -1,0 +1,53 @@
+*** Settings ***
+Suite Setup       OpenChrome    # Opens Chrome Browser to start the test cases
+Library           SeleniumLibrary
+Library           BuiltIn
+Variables         xpaths.py
+
+*** Variables ***
+${LoginUrl}       https://my.bexio.com/simplesaml/module.php/core/loginuserpassorg.php    # Bexio's system login URL
+@{LoginData}      info@webkreativstudio.ch    DolPan02!    # User login credentials - 1st value: Username - 2nd value: Password
+${WelcomePageUrl}    https://my.bexio.com/client/    # The URL Welcome Page after a successful login
+${WelcomePageTitle}    Your companies | bexio    # The title of the Welcomen Page at Bexio's system
+${DashboardXpath}    xpath: /html/body/div/div[3]/div/div/div[2]/h3/a    # The xpath of the link to load the Dashboard page
+${DashboardPageUrl}    https://office.bexio.com/index.php/user/dashboard    # The Dashboard URL
+${DashboardPageTitle}    Dashboard | bexio    # The Dashboard Page Title
+${LoginBtnXpath}    xpath: /html/body/div[1]/div/div/div/div/div[1]/div/div/div/div[2]/div/form/button    # The xpath behind the Login Button
+${ContactMenuItemLink}    xpath: //*[@id="header2"]/div/div[2]/div/div/div/ul/li[2]/a
+
+*** Test Cases ***
+LoginToBexio
+    LoginToBexio
+
+LoadDashboard
+    LoadDashboard
+
+LoadContactsPage
+    VerifyContactsMenuItem
+
+*** Keywords ***
+LoginToBexio
+    Input Text    login_nickname    @{LoginData}[0]
+    Input Password    login_password    @{LoginData}[1]
+    Click Element    ${LoginBtnXpath}
+    Location Should Be    ${WelcomePageUrl}
+    Title Should Be    ${WelcomePageTitle}
+    Log To Console    User has entered to the system
+
+LoadDashboard
+    Click Link    ${DashboardXpath}
+    Location Should Be    ${DashboardPageUrl}
+    Title Should Be    ${DashboardPageTitle}
+    Log To Console    Dashboard is loaded
+
+OpenChrome
+    Open Browser    ${LoginUrl}    chrome
+
+VerifyContactsMenuItem
+    [Documentation]    Verify that the "Contacts" menu item exists, it is clickable on the Dashboard page and the Contacts page is loaded
+    Click Element    ${ContactMenuItemLink}
+    Sleep    5 seconds
+    ${ContactPageTitle}    Get Title
+    Log To Console    ${ContactPageTitle}
+    Should Be Equal    ${ContactPageTitle}    Contacts | bexio
+    Log To Console    Contacts page is loaded
